@@ -3,14 +3,13 @@ import pandas as pd
 import plotly.express as px
 import requests
 
-# ✅ Fixed Render backend URL:
+# ✅ Set your Render backend URL
 API_BASE = "https://where-did-my-tax-go-backend.onrender.com"
 
-# Session state for theme toggle
+# Theme session
 if "dark_mode" not in st.session_state:
     st.session_state.dark_mode = True
 
-# Theme-based styling (same as your original)
 def get_styles():
     if st.session_state.dark_mode:
         return {
@@ -37,7 +36,7 @@ def get_styles():
 
 styles = get_styles()
 
-# Inject styles (same as your original)
+# CSS injection
 st.markdown(
     f"""
     <style>
@@ -73,38 +72,36 @@ if st.sidebar.button("🌙 Dark Mode" if not st.session_state.dark_mode else "�
     st.session_state.dark_mode = not st.session_state.dark_mode
     st.experimental_rerun()
 
-# Input widgets
 tax_input = st.sidebar.number_input("Total Annual Tax Paid (₹)", min_value=100, value=100000, step=100)
 chart_type = st.sidebar.selectbox("Choose Chart Type", ["Pie Chart", "Bar Chart"])
 st.sidebar.button("📊 Show Charts")
 
-# Header
 st.markdown("## 📊 Where Did My Tax Go?")
 
-# Fetch available years from API
+# 🔄 Fetch years from API
 try:
     years_response = requests.get(f"{API_BASE}/api/years")
     years_response.raise_for_status()
     years = sorted(years_response.json(), reverse=True)
 except Exception as e:
-    st.error("Failed to fetch available years from API.")
+    st.error(f"Failed to fetch available years from API.\n\n{e}")
     st.stop()
 
-# Year selection
+# Year selector
 select_year_label = (
     f"<label style='color:{styles['select_year_color']}; font-weight:600; font-size:16px;'>📅 Select Year</label>"
 )
 st.markdown(select_year_label, unsafe_allow_html=True)
 selected_year = st.selectbox("", years, label_visibility="collapsed")
 
-# Fetch budget data for selected year from API
+# Fetch budget for selected year
 if selected_year:
     try:
         res = requests.get(f"{API_BASE}/api/budget/{selected_year}")
         res.raise_for_status()
         data = res.json()
     except Exception as e:
-        st.error("Failed to fetch budget data for the selected year.")
+        st.error(f"Failed to fetch budget data for year {selected_year}.\n\n{e}")
         st.stop()
 
     df = pd.DataFrame(data)
@@ -117,7 +114,6 @@ if selected_year:
     chart_data = df.copy()
     chart_data["amount"] = chart_data["Allocated Amount (₹)"]
 
-    # Chart rendering
     if chart_type == "Pie Chart":
         fig = px.pie(
             chart_data,
