@@ -3,8 +3,8 @@ import pandas as pd
 import plotly.express as px
 import requests
 
-# === Replace this with your Render backend URL ===
-API_BASE = "https://tax-backend-YOUR_RENDER_ID.onrender.com"
+# ✅ Fixed Render backend URL:
+API_BASE = "https://where-did-my-tax-go-backend.onrender.com"
 
 # Session state for theme toggle
 if "dark_mode" not in st.session_state:
