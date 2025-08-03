@@ -1,11 +1,22 @@
 # main.py (FastAPI backend)
+
 from fastapi import FastAPI, HTTPException
 from typing import List, Dict
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import csv
 import os
 
 app = FastAPI()
+
+# ✅ CORS Middleware: Allow Streamlit frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # You can restrict to specific domain(s) like ["https://your-app.onrender.com"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Sector(BaseModel):
     sector: str
@@ -32,7 +43,7 @@ def load_budget_data(filepath: str) -> Dict[str, List[Dict[str, float]]]:
             budget[year].append({"sector": sector, "percent": percent})
     return budget
 
-# Load on startup
+# Load data on startup
 budget_data = load_budget_data("budget_data.csv")
 
 @app.get("/api/budget/{year}", response_model=List[Sector])
